@@ -15,7 +15,8 @@ import java.util.List;
 public class SqlBatchInsert implements ChBatchWriter {
     private String INSERT_QUERY =
             "INSERT INTO sample_records (id,text1,text2,text3,textArray1,textArray2,textArray3,textArray4,"
-                    + "decimalArray1,decimalArray2,numberArray1,numberArray2,dateTimeFields1) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    + "decimalArray1,decimalArray2,numberArray1,numberArray2,dateTimeFields1) values (?,?,?,?,?,?,?,"
+                    + "?,?,?,?,?,?)";
     private DataSource dataSource;
 
     @Autowired
@@ -31,7 +32,7 @@ public class SqlBatchInsert implements ChBatchWriter {
     @Override
     public void insertBatch(List<SampleRecord> records) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_QUERY)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(getInsertQuery())) {
             for (SampleRecord record : records) {
                 addRecordToStatement(preparedStatement, record);
                 preparedStatement.addBatch();
@@ -55,7 +56,10 @@ public class SqlBatchInsert implements ChBatchWriter {
         stmt.setObject(10, record.getDecimalArray2());
         stmt.setObject(11, record.getNumberArray1());
         stmt.setObject(12, record.getNumberArray2());
-        stmt.setObject(13, Arrays.stream(record.getDateTimeFields1())
-                                 .map(Timestamp::from).toArray(Timestamp[]::new));
+        stmt.setObject(13, record.getDateTimeFields1());
+    }
+
+    protected String getInsertQuery() {
+        return INSERT_QUERY;
     }
 }
