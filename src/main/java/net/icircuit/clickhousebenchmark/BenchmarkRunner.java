@@ -2,6 +2,7 @@ package net.icircuit.clickhousebenchmark;
 
 import net.icircuit.clickhousebenchmark.writers.ChBatchWriter;
 import net.icircuit.clickhousebenchmark.writers.SampleRecord;
+import net.icircuit.clickhousebenchmark.writers.UserEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,9 @@ public class BenchmarkRunner {
     }
 
     public void run() {
-        final List<SampleRecord> records = IntStream.range(0, numberOfRecords)
-                                                    .mapToObj(i -> util.crateRandomRecord(i))
-                                                    .collect(Collectors.toList());
+        final List<UserEvent> records = IntStream.range(0, numberOfRecords)
+                                                 .mapToObj(i -> util.createRandomEvent(i))
+                                                 .collect(Collectors.toList());
         for (ChBatchWriter batchWriter : batchWriters) {
             System.out.printf("%s,", batchWriter.name());
         }
