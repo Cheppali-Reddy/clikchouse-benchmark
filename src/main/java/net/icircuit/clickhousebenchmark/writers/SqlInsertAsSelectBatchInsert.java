@@ -8,12 +8,8 @@ import javax.sql.DataSource;
 @Service
 public class SqlInsertAsSelectBatchInsert extends SqlBatchInsert {
     private String INSERT_QUERY =
-            "INSERT INTO sample_records SELECT id,text1,text2,text3,textArray1,textArray2,textArray3,textArray4,"
-                    + "decimalArray1,decimalArray2,numberArray1,numberArray2,dateTimeFields1 FROM  "
-                    + "input('id Int64, text1 String, text2 String, text3 String, textArray1 Array(String), "
-                    + "textArray2 Array(String), textArray3 Array(String), textArray4 Array(String), decimalArray1 "
-                    + "Array(Float64), decimalArray2 Array(Float64), numberArray1 Array(Int64), numberArray2 Array"
-                    + "(Int64), dateTimeFields1 Array(DateTime)')";
+            "INSERT INTO user_events SELECT tenant_id, event_id, external_event_id, name, type, sub_type, category, event_timestamp, ingested_at, source, event_prop_keys, event_prop_values, actor_prop_keys, actor_prop_values, context_prop_keys, context_prop_values, raw_payload FROM  "
+                    + "input('tenant_id UInt64,event_id UInt64,external_event_id String,name String,type String,sub_type String,category String,event_timestamp DateTime64(3),ingested_at DateTime64(3),source String,event_prop_keys Array(String),event_prop_values Array(String),actor_prop_keys Array(String),actor_prop_values Array(String),context_prop_keys Array(String),context_prop_values Array(String),raw_payload String')";
 
     @Override
     public String name() {

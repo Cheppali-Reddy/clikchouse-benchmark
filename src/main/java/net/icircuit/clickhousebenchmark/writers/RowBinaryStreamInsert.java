@@ -18,7 +18,7 @@ import java.util.List;
 @Service
 public class RowBinaryStreamInsert implements ChBatchWriter {
     private String INSERT_QUERY =
-            "INSERT INTO sample_records format RowBinary";
+            "INSERT INTO user_events format RowBinary";
     private DataSource dataSource;
 
     @Autowired
@@ -32,15 +32,15 @@ public class RowBinaryStreamInsert implements ChBatchWriter {
     }
 
     @Override
-    public void insertBatch(List<SampleRecord> records) {
+    public void insertBatch(List<UserEvent> records) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(getInsertQuery())) {
             preparedStatement.setObject(1, new ClickHouseWriter() {
                 @Override
                 public void write(ClickHouseOutputStream output) throws IOException {
                     // this will be executed in a separate thread
-                    for (SampleRecord sampleRecord : records) {
-                        writeRecordToStream(output, sampleRecord);
+                    for (UserEvent event : records) {
+                        writeRecordToStream(output, event);
                     }
                 }
             });
@@ -50,25 +50,29 @@ public class RowBinaryStreamInsert implements ChBatchWriter {
         }
     }
 
-    private void writeRecordToStream(ClickHouseOutputStream output, SampleRecord sampleRecord) throws IOException {
-        BinaryStreamUtils.writeInt64(output, sampleRecord.getId());
+    private void writeRecordToStream(ClickHouseOutputStream output, UserEvent event) throws IOException {
+        BinaryStreamUtils.writeUnsignedInt64(output, event.getTenantId());
+        BinaryStreamUtils.writeUnsignedInt64(output, event.getEventId());
 
-        output.writeUnicodeString(sampleRecord.getText1());
-        output.writeUnicodeString(sampleRecord.getText2());
-        output.writeUnicodeString(sampleRecord.getText3());
+        output.writeUnicodeString(event.getExternalEventId());
+        output.writeUnicodeString(event.getName());
+        output.writeUnicodeString(event.getType());
+        output.writeUnicodeString(event.getSubType());
+        output.writeUnicodeString(event.getCategory());
 
-        writeStringArray(output, sampleRecord.getTextArray1());
-        writeStringArray(output, sampleRecord.getTextArray2());
-        writeStringArray(output, sampleRecord.getTextArray3());
-        writeStringArray(output, sampleRecord.getTextArray4());
+        BinaryStreamUtils.writeInt64(output, event.getEventTimestamp().toEpochMilli());
+        BinaryStreamUtils.writeInt64(output, event.getIngestedAt().toEpochMilli());
 
-        writeDoubleArray(output, sampleRecord.getDecimalArray1());
-        writeDoubleArray(output, sampleRecord.getDecimalArray2());
+        output.writeUnicodeString(event.getSource());
 
-        writeNumberArray(output, sampleRecord.getNumberArray1());
-        writeNumberArray(output, sampleRecord.getNumberArray2());
+        writeStringArray(output,event.getEventPropKeys());
+        writeStringArray(output,event.getEventPropValues());
+        writeStringArray(output,event.getActorPropKeys());
+        writeStringArray(output,event.getActorPropValues());
+        writeStringArray(output,event.getContextPropKeys());
+        writeStringArray(output,event.getContextPropValues());
 
-        writeInstantArray(output, sampleRecord.getDateTimeFields1());
+        output.writeUnicodeString(event.getRawPayload());
     }
 
     private void writeStringArray(ClickHouseOutputStream output, String[] array) throws IOException {

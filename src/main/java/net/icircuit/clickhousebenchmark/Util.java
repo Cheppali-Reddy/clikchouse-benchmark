@@ -2,9 +2,11 @@ package net.icircuit.clickhousebenchmark;
 
 import net.datafaker.Faker;
 import net.icircuit.clickhousebenchmark.writers.SampleRecord;
+import net.icircuit.clickhousebenchmark.writers.UserEvent;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class Util {
@@ -62,5 +64,29 @@ public class Util {
             array[i] = faker.date().past(300, TimeUnit.DAYS).toInstant();
         }
         return array;
+    }
+
+    public UserEvent createRandomEvent(int i) {
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTenantId(faker.number().randomNumber());
+        userEvent.setEventId((long)i);
+        userEvent.setExternalEventId(UUID.randomUUID().toString());
+        userEvent.setName(faker.name().firstName());
+        userEvent.setType(faker.lorem().word());
+        userEvent.setSubType(faker.lorem().word());
+        userEvent.setCategory(faker.lorem().word());
+        userEvent.setEventTimestamp(Instant.now());
+        userEvent.setIngestedAt(Instant.now());
+        userEvent.setSource(faker.lorem().word());
+
+        userEvent.setEventPropKeys(randomTextArray(20));
+        userEvent.setEventPropValues(randomTextArray(20));
+
+        userEvent.setActorPropKeys(randomTextArray(5));
+        userEvent.setActorPropValues(randomTextArray(5));
+        userEvent.setContextPropKeys(randomTextArray(5));
+        userEvent.setContextPropValues(randomTextArray(5));
+        userEvent.setRawPayload(faker.lorem().sentence(2000)); // 200 words for 1KB
+        return userEvent;
     }
 }

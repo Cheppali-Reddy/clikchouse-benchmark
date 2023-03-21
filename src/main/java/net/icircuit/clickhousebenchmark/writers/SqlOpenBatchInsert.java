@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 @Service
 public class SqlOpenBatchInsert extends SqlBatchInsert {
     private String INSERT_QUERY =
-            "INSERT INTO sample_records";
+            "INSERT INTO user_events";
 
     @Autowired
     public SqlOpenBatchInsert(DataSource dataSource) {

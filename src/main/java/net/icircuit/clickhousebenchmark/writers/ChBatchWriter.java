@@ -5,5 +5,5 @@ import java.util.List;
 public interface ChBatchWriter {
     String name();
 
-    void insertBatch(List<SampleRecord> records);
+    void insertBatch(List<UserEvent> records);
 }
